@@ -2,10 +2,17 @@
   <div id="app">
     <h1>This is a game</h1>
     <map-view :width="mapWidth" :height="mapHeight">
+      <items-view
+        :number="5"
+        :width="mapWidth"
+        :height="mapHeight"
+        :player-size="spriteSize"
+        :item-size="15"
+      ></items-view>
       <sprite-view
-        :posx="posx"
-        :posy="posy"
-        :size="spriteSize">
+        :position="position"
+        :size="spriteSize"
+        color="royalblue">
       </sprite-view>
     </map-view>
   </div>
@@ -14,33 +21,35 @@
 <script>
 import MapView from './components/Map.vue';
 import SpriteView from './components/Sprite.vue';
+import ItemsView from './components/ItemsView.vue';
 
-const SPEED = 3;
+const BASE_SPEED = 3;
 
 export default {
   name: 'app',
   components: {
     MapView,
     SpriteView,
+    ItemsView,
   },
   mounted() {
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
     window.addEventListener('keyup', this.handleKeyUp.bind(this));
 
     const updatePosition = () => {
-      this.posx += this.velocity.x;
-      this.posy += this.velocity.y;
+      this.position.x += this.velocity.x;
+      this.position.y += this.velocity.y;
 
-      if (this.posx < 0) {
-        this.posx = 0;
-      } else if (this.posx > this.mapWidth - this.spriteSize) {
-        this.posx = this.mapWidth - this.spriteSize;
+      if (this.position.x < 0) {
+        this.position.x = 0;
+      } else if (this.position.x > this.mapWidth - this.spriteSize) {
+        this.position.x = this.mapWidth - this.spriteSize;
       }
 
-      if (this.posy < 0) {
-        this.posy = 0;
-      } else if (this.posy > this.mapHeight - this.spriteSize) {
-        this.posy = this.mapHeight - this.spriteSize;
+      if (this.position.y < 0) {
+        this.position.y = 0;
+      } else if (this.position.y > this.mapHeight - this.spriteSize) {
+        this.position.y = this.mapHeight - this.spriteSize;
       }
 
       window.requestAnimationFrame(updatePosition);
@@ -53,8 +62,7 @@ export default {
   },
   data() {
     return {
-      posx: 300,
-      posy: 200,
+      position: { x: 300, y: 200 },
       velocity: { x: 0, y: 0 },
       mapWidth: 1000,
       mapHeight: 600,
@@ -65,19 +73,19 @@ export default {
     handleKeyDown(e) {
       switch (e.key) {
         case 'ArrowUp':
-          this.velocity.y = SPEED * -1;
+          this.velocity.y = BASE_SPEED * -1;
           break;
 
         case 'ArrowDown':
-          this.velocity.y = SPEED;
+          this.velocity.y = BASE_SPEED;
           break;
 
         case 'ArrowLeft':
-          this.velocity.x = SPEED * -1;
+          this.velocity.x = BASE_SPEED * -1;
           break;
 
         case 'ArrowRight':
-          this.velocity.x = SPEED;
+          this.velocity.x = BASE_SPEED;
           break;
 
         default:

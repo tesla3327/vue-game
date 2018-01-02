@@ -8,17 +8,18 @@
 export default {
   name: 'SpriteView',
   props: {
-    posy: Number,
-    posx: Number,
+    position: Object,
     size: Number,
+    color: String,
   },
   computed: {
     styles() {
       return {
-        top: `${this.posy}px`,
-        left: `${this.posx}px`,
+        top: `${this.position.y}px`,
+        left: `${this.position.x}px`,
         width: `${this.size}px`,
         height: `${this.size}px`,
+        background: this.color,
       }
     }
   },
@@ -28,8 +29,6 @@ export default {
 <style lang="scss" scoped>
   .sprite {
     position: relative;
-    border: 1px solid black;
     border-radius: 100%;
-    background: royalblue;
   }
 </style>

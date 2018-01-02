@@ -1,6 +1,6 @@
 <template>
   <div class="map" v-bind:style="styles">
-    <slot />
+    <slot></slot>
   </div>
 </template>
 
