@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <h1>This is a game</h1>
+    <h1>This is not a game</h1>
     <map-view :width="mapWidth" :height="mapHeight">
       <items-view
         :number="5"
@@ -9,106 +9,72 @@
         :player-size="spriteSize"
         :item-size="15"
       ></items-view>
-      <sprite-view
-        :position="position"
+      <player-view
+        :position="playerPos"
         :size="spriteSize"
+        @velocity-changed="updateVelocity"
         color="royalblue">
-      </sprite-view>
+      </player-view>
     </map-view>
   </div>
 </template>
 
 <script>
 import MapView from './components/Map.vue';
-import SpriteView from './components/Sprite.vue';
+import PlayerView from './components/Player.vue';
 import ItemsView from './components/ItemsView.vue';
 
-const BASE_SPEED = 3;
+// Constrain a position so it stays within a bounding box
+const constrainPosToBox = (topLeft, bottomRight, pos) => {
+  let x = Math.max(topLeft.x, pos.x);
+  x = Math.min(bottomRight.x, x);
+
+  let y = Math.max(topLeft.y, pos.y);
+  y = Math.min(bottomRight.y, y);
+
+  return { x, y };
+};
 
 export default {
   name: 'app',
   components: {
     MapView,
-    SpriteView,
+    PlayerView,
     ItemsView,
   },
   mounted() {
-    window.addEventListener('keydown', this.handleKeyDown.bind(this));
-    window.addEventListener('keyup', this.handleKeyUp.bind(this));
-
-    const updatePosition = () => {
-      this.position.x += this.velocity.x;
-      this.position.y += this.velocity.y;
-
-      if (this.position.x < 0) {
-        this.position.x = 0;
-      } else if (this.position.x > this.mapWidth - this.spriteSize) {
-        this.position.x = this.mapWidth - this.spriteSize;
-      }
-
-      if (this.position.y < 0) {
-        this.position.y = 0;
-      } else if (this.position.y > this.mapHeight - this.spriteSize) {
-        this.position.y = this.mapHeight - this.spriteSize;
-      }
-
-      window.requestAnimationFrame(updatePosition);
-    };
-    window.requestAnimationFrame(updatePosition);
-  },
-  beforeDestroy() {
-    window.removeEventListener('keydown', this.handleKeyDown.bind(this));
-    window.removeEventListener('keyup', this.handleKeyUp.bind(this));
+    // Start the loop to update player position
+    window.requestAnimationFrame(this.updatePlayerPosition);
   },
   data() {
     return {
-      position: { x: 300, y: 200 },
-      velocity: { x: 0, y: 0 },
+      playerPos: { x: 300, y: 200 },
+      playerVelocity: { x: 0, y: 0 },
       mapWidth: 1000,
       mapHeight: 600,
       spriteSize: 35,
     };
   },
   methods: {
-    handleKeyDown(e) {
-      switch (e.key) {
-        case 'ArrowUp':
-          this.velocity.y = BASE_SPEED * -1;
-          break;
-
-        case 'ArrowDown':
-          this.velocity.y = BASE_SPEED;
-          break;
-
-        case 'ArrowLeft':
-          this.velocity.x = BASE_SPEED * -1;
-          break;
-
-        case 'ArrowRight':
-          this.velocity.x = BASE_SPEED;
-          break;
-
-        default:
-          break;
-      }
+    updateVelocity(newVelocity) {
+      // Merge in changes
+      this.playerVelocity = Object.assign(this.playerVelocity, newVelocity);
     },
+    updatePlayerPosition() {
+      this.playerPos.x += this.playerVelocity.x;
+      this.playerPos.y += this.playerVelocity.y;
+      
+      this.playerPos = constrainPosToBox(
+        { x: 0, y: 0 },
+        {
+          x: this.mapWidth - this.spriteSize,
+          y: this.mapHeight - this.spriteSize
+        },
+        this.playerPos
+      );
 
-    handleKeyUp(e) {
-      switch (e.key) {
-        case 'ArrowUp':
-        case 'ArrowDown':
-          this.velocity.y = 0;
-          break;
-
-        case 'ArrowLeft':
-        case 'ArrowRight':
-          this.velocity.x = 0;
-          break;
-
-        default:
-          break;
-      }
-    }
+      window.requestAnimationFrame(this.updatePlayerPosition);
+    },
   }
 }
 </script>

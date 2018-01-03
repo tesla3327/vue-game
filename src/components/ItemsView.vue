@@ -2,7 +2,7 @@
   <div class="items-view">
     <sprite-view
       v-for="sprite in items"
-      :key="sprite"
+      :key="`${sprite.x}-${sprite.y}`"
       :position="sprite"
       :size="itemSize"
       color="white">
