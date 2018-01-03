@@ -26,9 +26,9 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .sprite {
-    position: relative;
+    position: absolute;
     border-radius: 100%;
   }
 </style>

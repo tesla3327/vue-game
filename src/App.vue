@@ -1,13 +1,14 @@
 <template>
   <div id="app">
     <h1>This is not a game</h1>
+    <h2>{{ points }}</h2>
     <map-view :width="mapWidth" :height="mapHeight">
       <items-view
-        :number="5"
-        :width="mapWidth"
-        :height="mapHeight"
-        :player-size="spriteSize"
+        :number="10"
         :item-size="15"
+        :bounding-box="itemsBoundingBox"
+        :player-bounding-box="playerBoundingBox"
+        @earned-points="accumulatePoints"
       ></items-view>
       <player-view
         :position="playerPos"
@@ -53,25 +54,61 @@ export default {
       mapWidth: 1000,
       mapHeight: 600,
       spriteSize: 35,
+      points: 0,
     };
   },
+  computed: {
+    // Create a box just smaller than the map so we can reach all items
+    itemsBoundingBox() {
+      const buffer = this.spriteSize
+      return {
+        topLeft: {
+          x: buffer,
+          y: buffer,
+        },
+        bottomRight: {
+          x: this.mapWidth - buffer,
+          y: this.mapHeight - buffer,
+        },
+      };
+    },
+    playerBoundingBox() {
+      return {
+        topLeft: this.playerPos,
+        bottomRight: {
+          x: this.playerPos.x + this.spriteSize,
+          y: this.playerPos.y + this.spriteSize,
+        }
+      }
+    }
+  },
   methods: {
+    accumulatePoints(points) {
+      this.points += points;
+    },
     updateVelocity(newVelocity) {
       // Merge in changes
       this.playerVelocity = Object.assign(this.playerVelocity, newVelocity);
     },
     updatePlayerPosition() {
-      this.playerPos.x += this.playerVelocity.x;
-      this.playerPos.y += this.playerVelocity.y;
+      let newPos = {
+        x: this.playerPos.x + this.playerVelocity.x,
+        y: this.playerPos.y + this.playerVelocity.y,
+      };
       
-      this.playerPos = constrainPosToBox(
+      newPos = constrainPosToBox(
         { x: 0, y: 0 },
         {
           x: this.mapWidth - this.spriteSize,
           y: this.mapHeight - this.spriteSize
         },
-        this.playerPos
+        newPos
       );
+
+      if (newPos.x !== this.playerPos.x ||
+          newPos.y !== this.playerPos.y) {
+        this.playerPos = newPos;
+      }
 
       window.requestAnimationFrame(this.updatePlayerPosition);
     },

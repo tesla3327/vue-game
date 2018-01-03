@@ -9,7 +9,7 @@
 <script>
 import SpriteView from './Sprite.vue';
 
-const BASE_SPEED = 3;
+const BASE_SPEED = 10;
 
 const handleKeyDown = function(e) {
   let velocity = {};
